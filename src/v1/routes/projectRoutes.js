@@ -6,4 +6,6 @@ const projectController = require('../../controllers/projectController');
 
 router.get('/', projectController.getAllProjects);
 
+router.get('/:id', projectController.getOneProject), 
+
 module.exports = router;

@@ -132,6 +132,10 @@ app.get('/projects', async (req, res) => {
     res.render('projects', data);
 });
 
+app.get('/projects/:projectId', async (req, res) => {
+    
+});
+
 app.get('/resume', (req, res) => {
     let data = {
         title: 'Resume',
