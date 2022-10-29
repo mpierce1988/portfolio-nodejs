@@ -1,1 +1,8 @@
 GET http://localhost:5000/api/v1/projects
+
+###
+### Valid Project ID
+GET http://localhost:5000/api/v1/projects/635abc0ae93257afa008ccc2
+
+### Invalid Project ID
+GET http://localhost:5000/api/v1/projects/635abc0ae9
