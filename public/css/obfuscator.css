@@ -1,0 +1,11 @@
+
+    .e-mail:before {
+        content: attr(data-qwfhuyrt) "\0040" attr(data-scfre);
+        unicode-bidi: bidi-override;
+        direction: rtl;
+    }
+    .phone:before {
+        content: attr(data-dfhywb)  attr(data-zxcx);
+        unicode-bidi: bidi-override;
+        direction: rtl;
+    }
