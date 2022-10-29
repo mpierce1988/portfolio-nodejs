@@ -133,6 +133,31 @@ app.get('/projects', async (req, res) => {
 });
 
 app.get('/projects/:projectId', async (req, res) => {
+    // call api and get projects
+    let id = req.params.projectId;
+    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/${id}`);
+    
+    let dataFromResponse = await response.json();
+
+    let data = {
+        year: new Date().getFullYear() 
+    };
+
+    if(response.status == 200 && dataFromResponse.status == 'OK'){
+        
+        let project = dataFromResponse.data;
+        data.title = project.projectName;
+        data.project = project;
+
+        res.render('resume', data);
+        return;
+
+    } else {
+        data.title = "Project Not Found";
+
+        res.render('404', data);
+        return;        
+    }
     
 });
 
@@ -196,14 +221,14 @@ app.post('/contactform', async (req, res) => {
 
 
 //route for 404 page not found
-app.get('*', (req, res) => {
-    let data = {
-        title: "Page Not Found",
-        year: new Date().getFullYear()
-    };
+// app.get('*', (req, res) => {
+//     let data = {
+//         title: "Page Not Found",
+//         year: new Date().getFullYear()
+//     };
 
-    res.render('404', data);
-})
+//     res.render('404', data);
+// })
 
 // Start server
 app.listen(PORT,() => {
