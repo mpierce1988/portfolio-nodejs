@@ -13,4 +13,19 @@ const getAllProjects = async() => {
     }
 };
 
-module.exports = {getAllProjects};
+/**
+ * Tries to get a project document via its unique id. If it fails, it throws an error
+ * @param {string} id 
+ * @returns {object} Project Object
+ */
+const getOneProject = async (id) => {
+    try {
+        let project = await mongoDAL.getOneDocument('website', 'projects', id);
+
+        return project;
+    } catch (error) {
+        throw error;
+    }
+}
+
+module.exports = {getAllProjects, getOneProject};

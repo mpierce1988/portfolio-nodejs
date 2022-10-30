@@ -1,0 +1,18 @@
+{{!-- {{>project project}} --}}
+
+<article>
+    <h3 align="center">{{project.projectName}}</h3>
+    <div class="grid">
+        <figure>
+            <img src="{{project.linkToProjectImage}}" alt="" >
+        </figure>
+    </div>
+    <p align="center">{{project.projectDescription}}</p>
+    <h3 class="primary">Features:</h3>
+    <ul>
+        {{#each project.features}}
+            <li>{{this}}</li>
+        {{/each}}
+    </ul>
+    <a href='{{project.linkToProject}}'><input type="button" value="Click Here!"></a>
+</article>
