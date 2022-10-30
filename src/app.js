@@ -8,6 +8,7 @@ const email = require('./services/emailService');
 //const fetch = require('node-fetch');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const PORT = process.env.PORT || 3000;
+const loginController = require('./controllers/loginController');
 
 const v1ProjectRoutes = require('./v1/routes/projectRoutes');
 
@@ -125,8 +126,6 @@ app.get('/projects', async (req, res) => {
     res.render('projects', data);
 });
 
-
-
 app.get('/projects/:projectId', async (req, res) => {
     // call api and get projects
     let id = req.params.projectId;
@@ -178,7 +177,56 @@ app.get('/contactform', (req, res) => {
     res.redirect("/contact");
 });
 
+app.get('/login', (req, res) => {
+    let data = {
+        title: 'Login',
+        year: new Date().getFullYear()
+    };
+
+    res.render('login', data);
+});
+
 // POST requests
+app.post('/login', async (req, res) => {
+    let data = {
+        title: "Login",
+        year: new Date().getFullYear()
+    }
+
+    // get username and password from body parser
+    let username = req.body.name;
+    let password = req.body.password;
+
+    let errors = [];
+
+    if(!username || username == ''){
+        errors.push('Username required');
+    }
+
+    if(!password || password == ''){
+        errors.push('Password required');
+    }
+
+    if(errors.length > 0){
+        data.errors = errors;
+        res.render('login', data);
+        return;
+    }
+
+    // validate username/password
+    let result = await loginController.validateUser(username, password);
+
+    if(result){
+        console.log('User approved!');
+        res.redirect('/');
+    } else {
+        console.log('User Rejected');
+        errors.push('Username and/or password invalid');
+        data.errors = errors;
+        res.render('login', data);
+    }
+
+});
 
 app.post('/contactform', async (req, res) => {
     // validate all inputs
@@ -222,17 +270,6 @@ app.post('/contactform', async (req, res) => {
 
     res.render('emailSuccessful');
 });
-
-
-//route for 404 page not found
-// app.get('*', (req, res) => {
-//     let data = {
-//         title: "Page Not Found",
-//         year: new Date().getFullYear()
-//     };
-
-//     res.render('404', data);
-// })
 
 // Start server
 app.listen(PORT,() => {
