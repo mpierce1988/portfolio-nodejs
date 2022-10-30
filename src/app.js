@@ -49,9 +49,7 @@ app.get('/', async (req, res) => {
 
     if(projects.length > 3){
         projects.length = 3;
-    }
-
-    console.log(projects);
+    }    
 
     let data = {
         title: 'Index Page', 
@@ -74,8 +72,6 @@ app.get('/contact', (req, res) => {
     
     if(validEmail == 'false'){
         errors.push('A valid email is required');
-        console.log('Email is invalid');
-        console.log('Amount of errors so far: ' + errors.length);
     } 
 
     if(validSubject == 'false'){
@@ -94,8 +90,7 @@ app.get('/contact', (req, res) => {
 
     // Add validation errors, if any
     if(errors.length > 0){
-        data.errors = errors;
-        console.log(errors);
+        data.errors = errors;        
     }
 
     // Add form data from previous form attempt, if available
@@ -109,9 +104,7 @@ app.get('/contact', (req, res) => {
 
     if(message != null && message != ''){
         data.message = message;
-    }
-
-    console.log(data);
+    }   
 
     res.render('contact', data);
 });
@@ -132,6 +125,8 @@ app.get('/projects', async (req, res) => {
     res.render('projects', data);
 });
 
+
+
 app.get('/projects/:projectId', async (req, res) => {
     // call api and get projects
     let id = req.params.projectId;
@@ -149,7 +144,7 @@ app.get('/projects/:projectId', async (req, res) => {
         data.title = project.projectName;
         data.project = project;
 
-        res.render('resume', data);
+        res.render('individualProject', data);
         return;
 
     } else {
@@ -160,6 +155,15 @@ app.get('/projects/:projectId', async (req, res) => {
     }
     
 });
+
+app.get('/test', (req, res) => {
+    let data = {
+        title: "Test",
+        year: new Date().getFullYear()
+    }
+
+    res.render('404', data);
+})
 
 app.get('/resume', (req, res) => {
     let data = {
