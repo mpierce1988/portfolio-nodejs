@@ -205,7 +205,73 @@ app.get('/login', (req, res) => {
     res.render('login', data);
 });
 
+app.get('/admin', async (req, res) => {
+    if(!req.session.isLoggedIn){
+        res.redirect('/');
+        return;
+    }
+
+    // display project information
+    // call api and get projects
+    let response = await fetch(`http://localhost:${PORT}/api/v1/projects`);
+    let dataFromResponse = await response.json();
+    let projects = dataFromResponse.data;
+
+    let data = {
+        title: "Current Projects",
+        year: new Date().getFullYear(),
+        isLoggedIn: req.session.isLoggedIn ?? false,
+        projects
+    }
+
+    res.render('admin', data);
+
+});
+
+app.get('/admin/edit/:projectId', async (req, res) => {
+    if(!req.session.isLoggedIn){
+        res.redirect('/');
+        return;
+    }
+
+    let id = req.params.projectId;
+
+    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/${id}`);
+    
+    let dataFromResponse = await response.json();
+
+    let data = {
+        isLoggedIn: req.session.isLoggedIn ?? false,
+        year: new Date().getFullYear() 
+    };
+
+    if(response.status == 200 && dataFromResponse.status == 'OK'){
+        
+        let project = dataFromResponse.data;
+        data.project = project;
+        data.title = project.projectName;        
+
+        res.render('editProject', data);
+        return;
+
+    } else {
+        data.title = "Project Not Found";
+
+        res.render('404', data);
+        return;        
+    }
+})
+
 // POST requests
+app.post('/admin/edit/:projectId', async (req, res) => {
+    if(!req.session.isLoggedIn){
+        res.redirect('/');
+        return;
+    }
+
+    
+});
+
 app.post('/login', async (req, res) => {
     let data = {
         title: "Login",

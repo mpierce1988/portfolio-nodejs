@@ -1,12 +1,29 @@
 const mongoDAL = require('./MongoDAL');
+const ObjectId = mongoDAL.ObjectId;
 
 const getAllProjects = async() => {
     try {
-        let projects = await mongoDAL.getDocuments('website', 'projects').catch(error => {
+        let projectsData = await mongoDAL.getDocuments('website', 'projects').catch(error => {
             console.log(error);
             /*throw {status: error?.status || 500, message: error?.message || error};
             */
         });
+
+        let projects = [];
+
+        projectsData.forEach(project => {
+            let newProject = {
+                id: project._id,
+                projectName: project.projectName,
+                projectDescription: project.projectDescription,
+                linkToProjectImage: project.linkToProjectImage,
+                features: project.features,
+                linkToProject: project.linkToProject
+            };
+
+            projects.push(newProject);
+        });
+        
         return projects;
     } catch (error) {
         throw error;
