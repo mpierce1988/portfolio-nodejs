@@ -100,10 +100,45 @@ const getOneDocumentById = async (database, collection, id) => {
     }    
 }
 
+const updateOneDocument = async (database, collection, id, changes) => {
+    const client = new MongoClient(uri);
+    
+    try {
+        const db = client.db(database);
+        const coll = db.collection(collection);
+        let objectId;
+
+        try {
+            objectId = ObjectId(id);
+        } catch (error) {
+            throw{status: 400, message: "Not a valid document ID"};
+        }
+
+        let filter = {
+            _id: ObjectId(id)
+        };
+
+        const result = await coll.findOneAndReplace(filter, changes);
+
+        if(!result){
+            throw {status: 500, message: `No Project found with the id ${id}`};
+        };
+        
+        return result;
+    } catch (error) {
+        throw {status: error?.status || 500, message: error?.message || error};
+    } finally {
+        if(!!client){
+            client.close();
+        }
+    }
+}
+
 
 
 module.exports = {
     getDocuments,
     getOneDocument: getOneDocumentById,
-    getOneDocumentByFilter
+    getOneDocumentByFilter,
+    updateOneDocument
 }
