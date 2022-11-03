@@ -124,7 +124,7 @@ const updateOneDocument = async (database, collection, id, changes) => {
             throw {status: 500, message: `No Project found with the id ${id}`};
         };
         
-        return result;
+        return result.value;
     } catch (error) {
         throw {status: error?.status || 500, message: error?.message || error};
     } finally {
