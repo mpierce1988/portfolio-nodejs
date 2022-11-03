@@ -8,6 +8,8 @@ const email = require('./services/emailService');
 //const fetch = require('node-fetch');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const PORT = process.env.PORT || 3000;
+const session = require('express-session');
+
 const loginController = require('./controllers/loginController');
 
 const v1ProjectRoutes = require('./v1/routes/projectRoutes');
@@ -30,6 +32,16 @@ hbs.registerPartials(partialsPath);
 // set up body parsing middleware
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
+
+// Set up session middleware
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    saveUninitialized: true,
+    resave: true,
+    cookie: {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+    }
+}))
 
 /// Routing
 
@@ -55,7 +67,8 @@ app.get('/', async (req, res) => {
     let data = {
         title: 'Index Page', 
         year: new Date().getFullYear(),
-        projects
+        projects,
+        isLoggedIn: req.session.isLoggedIn ?? false,
     };
     res.render('index', data);
 });
@@ -86,7 +99,8 @@ app.get('/contact', (req, res) => {
 
     let data = {
         title: 'Contact Me',
-        year: new Date().getFullYear()
+        year: new Date().getFullYear(),
+        isLoggedIn: req.session.isLoggedIn ?? false,
     };
 
     // Add validation errors, if any
@@ -120,7 +134,8 @@ app.get('/projects', async (req, res) => {
     let data = {
         title: 'Projects',
         year: new Date().getFullYear(),
-        projects
+        projects,
+        isLoggedIn: req.session.isLoggedIn ?? false,
     };
 
     res.render('projects', data);
@@ -134,6 +149,7 @@ app.get('/projects/:projectId', async (req, res) => {
     let dataFromResponse = await response.json();
 
     let data = {
+        isLoggedIn: req.session.isLoggedIn ?? false,
         year: new Date().getFullYear() 
     };
 
@@ -158,7 +174,8 @@ app.get('/projects/:projectId', async (req, res) => {
 app.get('/test', (req, res) => {
     let data = {
         title: "Test",
-        year: new Date().getFullYear()
+        year: new Date().getFullYear(),
+        isLoggedIn: req.session.isLoggedIn ?? false,
     }
 
     res.render('404', data);
@@ -167,7 +184,8 @@ app.get('/test', (req, res) => {
 app.get('/resume', (req, res) => {
     let data = {
         title: 'Resume',
-        year: new Date().getFullYear()
+        year: new Date().getFullYear(),
+        isLoggedIn: req.session.isLoggedIn ?? false,
     };
 
     res.render('resume', data);
@@ -180,7 +198,8 @@ app.get('/contactform', (req, res) => {
 app.get('/login', (req, res) => {
     let data = {
         title: 'Login',
-        year: new Date().getFullYear()
+        year: new Date().getFullYear(),
+        isLoggedIn: req.session.isLoggedIn ?? false,
     };
 
     res.render('login', data);
@@ -218,10 +237,12 @@ app.post('/login', async (req, res) => {
 
     if(result){
         console.log('User approved!');
+        req.session.isLoggedIn = true,
         res.redirect('/');
     } else {
         console.log('User Rejected');
         errors.push('Username and/or password invalid');
+        req.session.isLoggedIn = false,
         data.errors = errors;
         res.render('login', data);
     }
