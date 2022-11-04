@@ -39,7 +39,16 @@ const getOneProject = async (id) => {
     try {
         let project = await mongoDAL.getOneDocument('website', 'projects', id);
 
-        return project;
+        let newProject = {
+            id: project._id,
+            projectName: project.projectName,
+            projectDescription: project.projectDescription,
+            linkToProjectImage: project.linkToProjectImage,
+            features: project.features,
+            linkToProject: project.linkToProject
+        };
+
+        return newProject;
     } catch (error) {
         throw error;
     }

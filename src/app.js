@@ -269,7 +269,7 @@ app.post('/admin/edit/:projectId', async (req, res) => {
         return;
     }
 
-    
+
 });
 
 app.post('/login', async (req, res) => {
@@ -357,6 +357,38 @@ app.post('/contactform', async (req, res) => {
 
     res.render('emailSuccessful');
 });
+
+app.patch('/admin/edit/:id', async (req, res) => {
+    let updatedProject = req.body;
+
+    console.log("PATCH Project ID: " + updatedProject.id);
+    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/${updatedProject.id}`, {
+        method: "PATCH",
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify(updatedProject)
+    });
+
+    let body = await response.json()
+    let projectFromResponse = body.data;    
+    
+    console.log(projectFromResponse);
+
+    let data = {
+        title: projectFromResponse.projectName,
+        year: new Date().getFullYear(),
+        project: projectFromResponse
+    }
+
+    if(response.status == 200){
+        console.log('Patch pushed to API successfully');
+        data.message = "Changes Saved Successfully";        
+    } else {
+        data.error = "Something went wrong, changes not saved";
+    }
+
+    res.render('editProject', data);
+    
+})
 
 // Start server
 app.listen(PORT,() => {

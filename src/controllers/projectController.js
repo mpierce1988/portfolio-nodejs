@@ -21,6 +21,7 @@ const getOneProject = async (req, res) => {
 }
 
 const updateOneProject = async (req, res) => {
+    console.log("UPDATE REQUEST RECEIVED BY API PROJECT CONTROLLER")
     try {
         let id = req.params.id;
         let changes = {

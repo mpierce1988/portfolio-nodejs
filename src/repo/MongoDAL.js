@@ -87,7 +87,8 @@ const getOneDocumentById = async (database, collection, id) => {
 
         if(!document){
             throw {status: 400, message: `No Project with id ${id} was found`};
-        }        
+        }         
+        
 
         return document;
         
@@ -123,6 +124,8 @@ const updateOneDocument = async (database, collection, id, changes) => {
         if(!result){
             throw {status: 500, message: `No Project found with the id ${id}`};
         };
+
+        result.value.id = result.value._id;
         
         return result.value;
     } catch (error) {
