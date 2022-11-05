@@ -119,7 +119,7 @@ const updateOneDocument = async (database, collection, id, changes) => {
             _id: ObjectId(id)
         };
 
-        const result = await coll.findOneAndReplace(filter, changes);
+        const result = await coll.findOneAndReplace(filter, changes, {returnDocument: 'after'});
 
         if(!result){
             throw {status: 500, message: `No Project found with the id ${id}`};
