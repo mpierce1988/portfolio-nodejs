@@ -6,8 +6,13 @@ const projectController = require('../../controllers/projectController');
 
 router.get('/', projectController.getAllProjects);
 
-router.get('/:id', projectController.getOneProject), 
+router.post('/', projectController.createProject);
 
-router.patch('/:id', projectController.updateOneProject)
+router.get('/:id', projectController.getOneProject); 
+
+router.patch('/:id', projectController.updateOneProject);
+
+router.delete('/:id', projectController.deleteProject);
+
 
 module.exports = router;
