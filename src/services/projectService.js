@@ -23,4 +23,14 @@ const getOneProject = async (id) => {
     }
 }
 
-module.exports = {getAllProjects, getOneProject}
+const updateOneProject = async (id, changes) => {
+    try {
+        let updatedProject = await projectRepo.updateOneProject(id, changes);
+        return updatedProject;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+module.exports = {getAllProjects, getOneProject, updateOneProject}

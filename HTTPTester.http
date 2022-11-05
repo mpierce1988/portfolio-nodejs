@@ -6,3 +6,23 @@ GET http://localhost:5000/api/v1/projects/635abc0ae93257afa008ccc2
 
 ### Invalid Project ID
 GET http://localhost:5000/api/v1/projects/635abc0ae9
+
+### Update Project
+PATCH http://localhost:5000/api/v1/projects/635abc0ae93257afa008ccc2
+Content-Type: application/json
+
+{
+    "_id": "635abc0ae93257afa008ccc2",
+    "projectName": "Swipe and Rescue TEST UPDATE2",
+    "projectDescription": "A Flutter application that allows users to view available animals for adoption. Shelter staff have access to a special Admin panel that allows them to add, remove, or modify any listed animals.",
+    "linkToProjectImage": "images/swipeandrescue.png",
+    "features": [
+      "Android, iOS, and Web supported via Flutter framework",
+      "Provider pattern using the Provider Flutter package",
+      "User Authentication via Google, Email/Password, or Anonymous via Firebase",
+      "NoSQL database via Firebase Firestore",
+      "Uploadable images are stored to Google Cloud"
+    ],
+    "linkToProject": "https://youtu.be/JmGZICeGMBo"
+}
+    

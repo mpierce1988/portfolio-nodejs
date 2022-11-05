@@ -8,4 +8,6 @@ router.get('/', projectController.getAllProjects);
 
 router.get('/:id', projectController.getOneProject), 
 
+router.patch('/:id', projectController.updateOneProject)
+
 module.exports = router;

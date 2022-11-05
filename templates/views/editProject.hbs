@@ -1,0 +1,29 @@
+<script src="/js/PatchDeleteProject.js" defer></script>
+
+    {{#if message}}
+        <h3>{{message}}</h3>
+    {{/if}}
+
+    {{#if error}}
+        <h3>{{error}}</h3>
+    {{/if}}
+
+    <input type="hidden" name="id" id="projectId" value="{{project.id}}">
+    <label for="projectName">Project Name:</label>
+    <input type="text" name="projectName" id="projectName" value="{{project.projectName}}">
+    <br>
+    <label for="projectDescription">Project Description:</label>
+    <input type="text" name="projectDescription" id="projectDescription" value="{{project.projectDescription}}">
+    <br>
+    <label for="linkToProjectImage">Link to Project Image:</label>
+    <input type="text" name="linkToProjectImage" id="linkToProjectImage" value="{{project.linkToProjectImage}}">
+    <br>
+    <label>Features:</label>
+    {{#each project.features}}
+    <input type="text" name="feature[{{@index}}]" id="feature[{{@index}}]" value="{{this}}">
+    {{/each}}
+    <br>
+    <label for="linkToProject">Link to Project:</label>
+    <input type="text" name="linkToProject" id="linkToProject" value="{{project.linkToProject}}">
+    <br>
+    <button id="save">Save Changes</button>
