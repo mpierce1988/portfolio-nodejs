@@ -47,4 +47,41 @@ const updateOneProject = async (req, res) => {
     }
 }
 
-module.exports = {getAllProjects, getOneProject, updateOneProject};
+const createProject = async (req, res) => {
+    try {
+        let newProject = {            
+            projectName: req.body.projectName,
+            projectDescription: req.body.projectDescription,
+            linkToProjectImage: req.body.linkToProjectImage,
+            features: req.body.features,
+            linkToProject: req.body.linkToProject
+        };
+
+        let result = await projectService.createProject(newProject);
+
+        if(!result){
+            throw {status: 500, message: "Unable to create new project"};
+        }
+
+        res.status(200).send({status: "OK", data: result});
+    } catch (error) {
+        res.status(error?.status || 500).send({status: "FAILED", data: {error: error?.message || error}});
+    }
+}
+
+const deleteProject = async (req, res) => {
+    try {
+        let id = req.params.id;
+        let deletedProject = await projectService.deleteProject(id);
+
+        if(!deletedProject){
+            throw {status: 500, message: "Failed to delete project"};
+        }
+
+        res.status(200).send({status: "OK", data: deletedProject});
+    } catch (error) {
+        res.status(error?.status || 500).send({status: "OK", message: error?.message || error});
+    }
+}
+
+module.exports = {getAllProjects, getOneProject, updateOneProject, createProject, deleteProject};
