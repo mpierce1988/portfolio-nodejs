@@ -14,6 +14,9 @@ const loginController = require('./controllers/loginController');
 
 const v1ProjectRoutes = require('./v1/routes/projectRoutes');
 
+// Start mongoose
+require('./repo/mongoose');
+
 // Define paths for Express configuration
 const publicDirPath = express.static(path.join(__dirname, '../public'));
 const viewsPath = path.join(__dirname, '../templates/views');

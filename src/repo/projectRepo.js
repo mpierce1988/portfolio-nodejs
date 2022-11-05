@@ -1,67 +1,109 @@
-const mongoDAL = require('./MongoDAL');
-const ObjectId = mongoDAL.ObjectId;
+const Project = require('../models/project');
 
-const getAllProjects = async() => {
+const getAllProjects = async () => {
+    // return an array of projects
     try {
-        let projectsData = await mongoDAL.getDocuments('website', 'projects').catch(error => {
-            console.log(error);
-            /*throw {status: error?.status || 500, message: error?.message || error};
-            */
+        let docs = await Project.find();
+
+        const projects = docs.map(doc => {
+            return {
+                id: doc._id,
+                projectName: doc.name,
+                projectDescription: doc.description,
+                linkToProjectImage: doc.linkToProjectImage,
+                features: doc.features,
+                linkToProject: doc.linkToProject
+            };        
         });
 
-        let projects = [];
-
-        projectsData.forEach(project => {
-            let newProject = {
-                id: project._id,
-                projectName: project.projectName,
-                projectDescription: project.projectDescription,
-                linkToProjectImage: project.linkToProjectImage,
-                features: project.features,
-                linkToProject: project.linkToProject
-            };
-
-            projects.push(newProject);
-        });
-        
         return projects;
     } catch (error) {
-        throw error;
+        throw {status: error?.status || 500, message: error?.message || error};
     }
 };
 
-/**
- * Tries to get a project document via its unique id. If it fails, it throws an error
- * @param {string} id 
- * @returns {object} Project Object
- */
 const getOneProject = async (id) => {
     try {
-        let project = await mongoDAL.getOneDocument('website', 'projects', id);
+        let project = await Project.findById(id);
 
-        let newProject = {
-            id: project._id,
-            projectName: project.projectName,
-            projectDescription: project.projectDescription,
+        return project;
+
+    } catch (error) {
+        throw {status: error?.status || 500, message: error?.message || error};
+    }
+}
+
+const updateOneProject = async (id, changes) => {
+    try {
+        const change = {
+            name: changes.projectName,
+            description: changes.projectDescription,
+            linkToProjectImage: changes.linkToProjectImage,
+            features: changes.features,
+            linkToProject: changes.linkToProject
+        };
+
+        let updatedProject = await Project.findByIdAndUpdate(id, change, {returnDocument: "after"});
+        return updatedProject;
+    } catch (error) {
+        if(error.name === "ValidationError"){
+            let validationErrors = error.errors.map(error => error.message);
+            throw {status: 400, errors: validationErrors};
+        }
+
+        throw {status: error?.status || 500, message: error?.message || error};
+    }
+}
+
+const createProject = async (project) => {
+    try {
+        const formattedProject = {
+            name: project.projectName,
+            description: project.projectDescription,
             linkToProjectImage: project.linkToProjectImage,
             features: project.features,
             linkToProject: project.linkToProject
         };
 
-        return newProject;
+        let doc = await Project.create(formattedProject);
+
+        let result = {
+            id: doc._id,
+                projectName: doc.name,
+                projectDescription: doc.description,
+                linkToProjectImage: doc.linkToProjectImage,
+                features: doc.features,
+                linkToProject: doc.linkToProject
+        }
+        return result;
     } catch (error) {
-        throw error;
+        if(error.name === "ValidationError"){
+            let validationErrors = error.errors.map(error => error.message);
+            throw {status: 400, errors: validationErrors};
+        }
+
+        throw {status: error?.status || 500, message: error?.message || error};
     }
 }
 
-const updateOneProject = async(id, changes) => {
+const deleteProject = async (id) => {
     try {
-        let updatedProject = await mongoDAL.updateOneDocument('website', 'projects', id, changes);
+        let result = await Project.findByIdAndDelete(id);
 
-        return updatedProject;
+        if(!result){
+            throw {status: 400, message: `Delete failed, cannot find document with id ${id}`}
+        }
+
+        return result;
     } catch (error) {
-        throw error;
+        throw {status: error?.status || 500, message: error?.message || error};
     }
 }
 
-module.exports = {getAllProjects, getOneProject, updateOneProject};
+module.exports = {
+    getAllProjects,
+    getOneProject,
+    updateOneProject,
+    createProject,
+    deleteProject
+}
