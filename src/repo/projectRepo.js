@@ -13,23 +13,32 @@ const getAllProjects = async () => {
                 linkToProjectImage: doc.linkToProjectImage,
                 features: doc.features,
                 linkToProject: doc.linkToProject
-            };        
+            };
         });
 
         return projects;
     } catch (error) {
-        throw {status: error?.status || 500, message: error?.message || error};
+        throw { status: error?.status || 500, message: error?.message || error };
     }
 };
 
 const getOneProject = async (id) => {
     try {
-        let project = await Project.findById(id);
+        let doc = await Project.findById(id);
+
+        const project = {
+            id: doc._id,
+            projectName: doc.name,
+            projectDescription: doc.description,
+            linkToProjectImage: doc.linkToProjectImage,
+            features: doc.features,
+            linkToProject: doc.linkToProject
+        }
 
         return project;
 
     } catch (error) {
-        throw {status: error?.status || 500, message: error?.message || error};
+        throw { status: error?.status || 500, message: error?.message || error };
     }
 }
 
@@ -43,15 +52,25 @@ const updateOneProject = async (id, changes) => {
             linkToProject: changes.linkToProject
         };
 
-        let updatedProject = await Project.findByIdAndUpdate(id, change, {returnDocument: "after"});
-        return updatedProject;
-    } catch (error) {
-        if(error.name === "ValidationError"){
-            let validationErrors = error.errors.map(error => error.message);
-            throw {status: 400, errors: validationErrors};
+        let doc = await Project.findByIdAndUpdate(id, change, { returnDocument: "after" });
+
+        const updatedProject = {
+            id: doc._id,
+            projectName: doc.name,
+            projectDescription: doc.description,
+            linkToProjectImage: doc.linkToProjectImage,
+            features: doc.features,
+            linkToProject: doc.linkToProject
         }
 
-        throw {status: error?.status || 500, message: error?.message || error};
+        return updatedProject;
+    } catch (error) {
+        if (error.name === "ValidationError") {
+            let validationErrors = error.errors.map(error => error.message);
+            throw { status: 400, errors: validationErrors };
+        }
+
+        throw { status: error?.status || 500, message: error?.message || error };
     }
 }
 
@@ -69,34 +88,43 @@ const createProject = async (project) => {
 
         let result = {
             id: doc._id,
-                projectName: doc.name,
-                projectDescription: doc.description,
-                linkToProjectImage: doc.linkToProjectImage,
-                features: doc.features,
-                linkToProject: doc.linkToProject
+            projectName: doc.name,
+            projectDescription: doc.description,
+            linkToProjectImage: doc.linkToProjectImage,
+            features: doc.features,
+            linkToProject: doc.linkToProject
         }
         return result;
     } catch (error) {
-        if(error.name === "ValidationError"){
+        if (error.name === "ValidationError") {
             let validationErrors = error.errors.map(error => error.message);
-            throw {status: 400, errors: validationErrors};
+            throw { status: 400, errors: validationErrors };
         }
 
-        throw {status: error?.status || 500, message: error?.message || error};
+        throw { status: error?.status || 500, message: error?.message || error };
     }
 }
 
 const deleteProject = async (id) => {
     try {
-        let result = await Project.findByIdAndDelete(id);
+        let doc = await Project.findByIdAndDelete(id);
 
-        if(!result){
-            throw {status: 400, message: `Delete failed, cannot find document with id ${id}`}
+        if (!doc) {
+            throw { status: 400, message: `Delete failed, cannot find document with id ${id}` }
         }
 
-        return result;
+        const project = {
+            id: doc._id,
+            projectName: doc.name,
+            projectDescription: doc.description,
+            linkToProjectImage: doc.linkToProjectImage,
+            features: doc.features,
+            linkToProject: doc.linkToProject
+        }
+
+        return project;
     } catch (error) {
-        throw {status: error?.status || 500, message: error?.message || error};
+        throw { status: error?.status || 500, message: error?.message || error };
     }
 }
 

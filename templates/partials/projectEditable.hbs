@@ -1,0 +1,20 @@
+<input type="hidden" name="id" id="projectId" value="{{id}}">
+    <label for="projectName">Project Name:</label>
+    <input type="text" name="projectName" id="projectName" value="{{projectName}}">
+    <br>
+    <label for="projectDescription">Project Description:</label>
+    <input type="text" name="projectDescription" id="projectDescription" value="{{projectDescription}}">
+    <br>
+    <label for="linkToProjectImage">Link to Project Image:</label>
+    <input type="text" name="linkToProjectImage" id="linkToProjectImage" value="{{linkToProjectImage}}">
+    <br>
+    <label>Features:</label>
+    {{#if features}}
+    {{#each features}}
+    <input type="text" name="feature[{{@index}}]" id="feature[{{@index}}]" value="{{this}}">
+    {{/each}}
+    {{/if}}
+    <br>
+    <label for="linkToProject">Link to Project:</label>
+    <input type="text" name="linkToProject" id="linkToProject" value="{{linkToProject}}">
+    <br>

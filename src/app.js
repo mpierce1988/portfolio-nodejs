@@ -231,7 +231,22 @@ app.get('/admin', async (req, res) => {
 
 });
 
-app.get('/admin/edit/:projectId', async (req, res) => {
+app.get('/admin/project', (req, res) => {
+    if(!req.session.isLoggedIn){
+        res.redirect('/');
+        return;
+    }
+
+    let data = {
+        title: "Current Projects",
+        year: new Date().getFullYear(),
+        isLoggedIn: req.session.isLoggedIn ?? false,
+    }
+
+    res.render('createProject', data);
+})
+
+app.get('/admin/projects/:projectId', async (req, res) => {
     if(!req.session.isLoggedIn){
         res.redirect('/');
         return;
@@ -252,8 +267,9 @@ app.get('/admin/edit/:projectId', async (req, res) => {
         
         let project = dataFromResponse.data;
         data.project = project;
-        data.title = project.projectName;        
+        data.title = project.projectName;       
 
+        
         res.render('editProject', data);
         return;
 
@@ -266,14 +282,107 @@ app.get('/admin/edit/:projectId', async (req, res) => {
 })
 
 // POST requests
-app.post('/admin/edit/:projectId', async (req, res) => {
+
+const patchProject = async (req, res) => {
+    let updatedProject = {
+        id: req.body.id,
+        projectName: req.body.projectName,
+        projectDescription: req.body.projectDescription,
+        linkToProjectImage: req.body.linkToProjectImage,
+        features: req.body.features,
+        linkToProject: req.body.linkToProject
+    }
+    
+    console.log("Updated Project Info:" + JSON.stringify(updatedProject));
+
+    console.log("PATCH Project ID: " + updatedProject.id);
+    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/${updatedProject.id}`, {
+        method: "PATCH",
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify(updatedProject)
+    });
+
+    let body = await response.json()
+    let projectFromResponse = body.data;    
+    
+    console.log(projectFromResponse);
+
+    let data = {
+        title: "EDITEDEDITEDEDITED",
+        year: new Date().getFullYear(),
+        project: projectFromResponse
+    }
+
+    if(response.status == 200){
+        console.log('Patch pushed to API successfully');
+        data.message = "Changes Saved Successfully";        
+    } else {
+        data.error = "Something went wrong, changes not saved";
+    }
+
+    res.render('editProject', data);
+}
+
+app.post('/admin/projects/:projectId', async (req, res) => {
     if(!req.session.isLoggedIn){
         res.redirect('/');
         return;
     }
 
+    // Check for method
+    let method = req.body._method;
+
+    if(method == "patch"){
+        await patchProject(req, res);
+        return;
+    }    
 
 });
+
+app.post('/admin/project', async (req, res) => {
+    if(!req.session.isLoggedIn){
+        res.redirect('/');
+        return;
+    }
+
+    let newProject = {
+        id: req.body.id,
+        projectName: req.body.projectName,
+        projectDescription: req.body.projectDescription,
+        linkToProjectImage: req.body.linkToProjectImage,
+        features: req.body.features,
+        linkToProject: req.body.linkToProject
+    }
+
+    let data = {
+        title: newProject.projectName,
+        year: new Date().getFullYear()
+    }
+
+    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/`, {
+        method: "POST",
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify(newProject)
+    });
+
+    let dataFromResponse = await response.json();
+    let projectFromServer = dataFromResponse.data;
+
+    if(response.status < 200 || response.status > 299) {
+        // create failed
+        let error = body.data?.error || "New Project failed creation rejected by server";
+        data.error = error;
+        res.render('createProject', data);
+        return;
+    }
+
+    console.log("NEW PROJECT FROM SERVER: " + JSON.stringify(projectFromServer));
+
+    data.project = projectFromServer;
+    data.message = "New Project Created Successfully";
+    res.render('projectProcessor', data);
+
+})
 
 app.post('/login', async (req, res) => {
     let data = {
@@ -304,13 +413,10 @@ app.post('/login', async (req, res) => {
     // validate username/password
     let result = await loginController.validateUser(username, password);
 
-    if(result){
-        console.log('User approved!');
+    if(result){        
         req.session.isLoggedIn = true,
         res.redirect('/');
-    } else {
-        console.log('User Rejected');
-        errors.push('Username and/or password invalid');
+    } else {        
         req.session.isLoggedIn = false,
         data.errors = errors;
         res.render('login', data);
@@ -360,38 +466,6 @@ app.post('/contactform', async (req, res) => {
 
     res.render('emailSuccessful');
 });
-
-app.patch('/admin/edit/:id', async (req, res) => {
-    let updatedProject = req.body;
-
-    console.log("PATCH Project ID: " + updatedProject.id);
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/${updatedProject.id}`, {
-        method: "PATCH",
-        headers: {'content-type': 'application/json'},
-        body: JSON.stringify(updatedProject)
-    });
-
-    let body = await response.json()
-    let projectFromResponse = body.data;    
-    
-    console.log(projectFromResponse);
-
-    let data = {
-        title: projectFromResponse.projectName,
-        year: new Date().getFullYear(),
-        project: projectFromResponse
-    }
-
-    if(response.status == 200){
-        console.log('Patch pushed to API successfully');
-        data.message = "Changes Saved Successfully";        
-    } else {
-        data.error = "Something went wrong, changes not saved";
-    }
-
-    res.render('editProject', data);
-    
-})
 
 // Start server
 app.listen(PORT,() => {
