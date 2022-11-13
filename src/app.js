@@ -3,14 +3,16 @@ const path = require('path');
 const express = require('express');
 const app = express();
 const hbs = require('hbs');
-const querystring = require('querystring');
-const email = require('./services/emailService');
+
+
 //const fetch = require('node-fetch');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const PORT = process.env.PORT || 3000;
 const session = require('express-session');
 
-const loginController = require('./controllers/loginController');
+const homeController = require ('./controllers/homeController');
+const adminController = require('./controllers/adminController');
+
 
 const v1ProjectRoutes = require('./v1/routes/projectRoutes');
 
@@ -56,416 +58,38 @@ app.use('/api/v1/projects', v1ProjectRoutes);
 
 // GET requests
 
-app.get('/', async (req, res) => {
+app.get('/', homeController.getHomepage);
 
-    // call api and get projects
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects`);
-    let dataFromResponse = await response.json();
-    let projects = dataFromResponse.data;
+app.get('/contact', homeController.getContactPage);
 
-    if(projects.length > 3){
-        projects.length = 3;
-    }    
+app.get('/projects', homeController.getAllProjectsPage);
 
-    let data = {
-        title: 'Index Page', 
-        year: new Date().getFullYear(),
-        projects,
-        isLoggedIn: req.session.isLoggedIn ?? false,
-    };
-    res.render('index', data);
-});
-
-app.get('/contact', (req, res) => {
-    // Check for invalid email/subject/message/email/subject/message from contactform POST handler
-    let errors = [];
-    let validEmail = req.query.validEmail;
-    let validSubject = req.query.validSubject;
-    let validMessage = req.query.validMessage;
-    let email = req.query.contactEmail;
-    let subject = req.query.subject;
-    let message = req.query.message;
-
-    
-    if(validEmail == 'false'){
-        errors.push('A valid email is required');
-    } 
-
-    if(validSubject == 'false'){
-        errors.push('A valid subject line is required');
-    }
-
-    if(validMessage == 'false'){
-        errors.push('A valid message is required');
-    }
+app.get('/projects/:projectId', homeController.getProductPage);
 
 
-    let data = {
-        title: 'Contact Me',
-        year: new Date().getFullYear(),
-        isLoggedIn: req.session.isLoggedIn ?? false,
-    };
+app.get('/resume', homeController.getResumePage);
 
-    // Add validation errors, if any
-    if(errors.length > 0){
-        data.errors = errors;        
-    }
+app.get('/contactform', homeController.redirectToContactPage);
 
-    // Add form data from previous form attempt, if available
-    if(email != null && email != ''){
-        data.email = email;
-    }
+app.get('/login', adminController.getLoginPage);
 
-    if(subject != null && subject != ''){
-        data.subject = subject;
-    }
+app.get('/admin', adminController.getAdminPage);
 
-    if(message != null && message != ''){
-        data.message = message;
-    }   
+app.get('/admin/project', adminController.getCreateProject);
 
-    res.render('contact', data);
-});
-
-app.get('/projects', async (req, res) => {
-
-    // call api and get projects
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects`);
-    let dataFromResponse = await response.json();
-    let projects = dataFromResponse.data;
-
-    let data = {
-        title: 'Projects',
-        year: new Date().getFullYear(),
-        projects,
-        isLoggedIn: req.session.isLoggedIn ?? false,
-    };
-
-    res.render('projects', data);
-});
-
-app.get('/projects/:projectId', async (req, res) => {
-    // call api and get projects
-    let id = req.params.projectId;
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/${id}`);
-    
-    let dataFromResponse = await response.json();
-
-    let data = {
-        isLoggedIn: req.session.isLoggedIn ?? false,
-        year: new Date().getFullYear() 
-    };
-
-    if(response.status == 200 && dataFromResponse.status == 'OK'){
-        
-        let project = dataFromResponse.data;
-        data.title = project.projectName;
-        data.project = project;
-
-        res.render('individualProject', data);
-        return;
-
-    } else {
-        data.title = "Project Not Found";
-
-        res.render('404', data);
-        return;        
-    }
-    
-});
-
-app.get('/test', (req, res) => {
-    let data = {
-        title: "Test",
-        year: new Date().getFullYear(),
-        isLoggedIn: req.session.isLoggedIn ?? false,
-    }
-
-    res.render('404', data);
-})
-
-app.get('/resume', (req, res) => {
-    let data = {
-        title: 'Resume',
-        year: new Date().getFullYear(),
-        isLoggedIn: req.session.isLoggedIn ?? false,
-    };
-
-    res.render('resume', data);
-})
-
-app.get('/contactform', (req, res) => {
-    res.redirect("/contact");
-});
-
-app.get('/login', (req, res) => {
-    let data = {
-        title: 'Login',
-        year: new Date().getFullYear(),
-        isLoggedIn: req.session.isLoggedIn ?? false,
-    };
-
-    res.render('login', data);
-});
-
-app.get('/admin', async (req, res) => {
-    if(!req.session.isLoggedIn){
-        res.redirect('/');
-        return;
-    }
-
-    // display project information
-    // call api and get projects
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects`);
-    let dataFromResponse = await response.json();
-    let projects = dataFromResponse.data;
-
-    let data = {
-        title: "Current Projects",
-        year: new Date().getFullYear(),
-        isLoggedIn: req.session.isLoggedIn ?? false,
-        projects
-    }
-
-    res.render('admin', data);
-
-});
-
-app.get('/admin/project', (req, res) => {
-    if(!req.session.isLoggedIn){
-        res.redirect('/');
-        return;
-    }
-
-    let data = {
-        title: "Current Projects",
-        year: new Date().getFullYear(),
-        isLoggedIn: req.session.isLoggedIn ?? false,
-    }
-
-    res.render('createProject', data);
-})
-
-app.get('/admin/projects/:projectId', async (req, res) => {
-    if(!req.session.isLoggedIn){
-        res.redirect('/');
-        return;
-    }
-
-    let id = req.params.projectId;
-
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/${id}`);
-    
-    let dataFromResponse = await response.json();
-
-    let data = {
-        isLoggedIn: req.session.isLoggedIn ?? false,
-        year: new Date().getFullYear() 
-    };
-
-    if(response.status == 200 && dataFromResponse.status == 'OK'){
-        
-        let project = dataFromResponse.data;
-        data.project = project;
-        data.title = project.projectName;       
-
-        
-        res.render('editProject', data);
-        return;
-
-    } else {
-        data.title = "Project Not Found";
-
-        res.render('404', data);
-        return;        
-    }
-})
+app.get('/admin/projects/:projectId', adminController.getEditProject);
 
 // POST requests
 
-const patchProject = async (req, res) => {
-    let updatedProject = {
-        id: req.body.id,
-        projectName: req.body.projectName,
-        projectDescription: req.body.projectDescription,
-        linkToProjectImage: req.body.linkToProjectImage,
-        features: req.body.features,
-        linkToProject: req.body.linkToProject
-    }
-    
-    console.log("Updated Project Info:" + JSON.stringify(updatedProject));
+app.post('/admin/projects/deleteproject', adminController.deleteProject);
 
-    console.log("PATCH Project ID: " + updatedProject.id);
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/${updatedProject.id}`, {
-        method: "PATCH",
-        headers: {'content-type': 'application/json'},
-        body: JSON.stringify(updatedProject)
-    });
+app.post('/admin/projects/:projectId', adminController.patchProject);
 
-    let body = await response.json()
-    let projectFromResponse = body.data;    
-    
-    console.log(projectFromResponse);
+app.post('/admin/project', adminController.createProject);
 
-    let data = {
-        title: "EDITEDEDITEDEDITED",
-        year: new Date().getFullYear(),
-        project: projectFromResponse
-    }
+app.post('/login', adminController.postLogin);
 
-    if(response.status == 200){
-        console.log('Patch pushed to API successfully');
-        data.message = "Changes Saved Successfully";        
-    } else {
-        data.error = "Something went wrong, changes not saved";
-    }
-
-    res.render('editProject', data);
-}
-
-app.post('/admin/projects/:projectId', async (req, res) => {
-    if(!req.session.isLoggedIn){
-        res.redirect('/');
-        return;
-    }
-
-    // Check for method
-    let method = req.body._method;
-
-    if(method == "patch"){
-        await patchProject(req, res);
-        return;
-    }    
-
-});
-
-app.post('/admin/project', async (req, res) => {
-    if(!req.session.isLoggedIn){
-        res.redirect('/');
-        return;
-    }
-
-    let newProject = {
-        id: req.body.id,
-        projectName: req.body.projectName,
-        projectDescription: req.body.projectDescription,
-        linkToProjectImage: req.body.linkToProjectImage,
-        features: req.body.features,
-        linkToProject: req.body.linkToProject
-    }
-
-    let data = {
-        title: newProject.projectName,
-        year: new Date().getFullYear()
-    }
-
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/`, {
-        method: "POST",
-        headers: {'content-type': 'application/json'},
-        body: JSON.stringify(newProject)
-    });
-
-    let dataFromResponse = await response.json();
-    let projectFromServer = dataFromResponse.data;
-
-    if(response.status < 200 || response.status > 299) {
-        // create failed
-        let error = body.data?.error || "New Project failed creation rejected by server";
-        data.error = error;
-        res.render('createProject', data);
-        return;
-    }
-
-    console.log("NEW PROJECT FROM SERVER: " + JSON.stringify(projectFromServer));
-
-    data.project = projectFromServer;
-    data.message = "New Project Created Successfully";
-    res.render('projectProcessor', data);
-
-})
-
-app.post('/login', async (req, res) => {
-    let data = {
-        title: "Login",
-        year: new Date().getFullYear()
-    }
-
-    // get username and password from body parser
-    let username = req.body.name;
-    let password = req.body.password;
-
-    let errors = [];
-
-    if(!username || username == ''){
-        errors.push('Username required');
-    }
-
-    if(!password || password == ''){
-        errors.push('Password required');
-    }
-
-    if(errors.length > 0){
-        data.errors = errors;
-        res.render('login', data);
-        return;
-    }
-
-    // validate username/password
-    let result = await loginController.validateUser(username, password);
-
-    if(result){        
-        req.session.isLoggedIn = true,
-        res.redirect('/');
-    } else {        
-        req.session.isLoggedIn = false,
-        data.errors = errors;
-        res.render('login', data);
-    }
-
-});
-
-app.post('/contactform', async (req, res) => {
-    // validate all inputs
-    let contactEmail = req.body.email;
-    let subject = req.body.subject;
-    let message = req.body.message;
-
-    let errors = {};
-    if(!contactEmail){
-        errors.validEmail = false;
-    }
-
-    if(!subject){
-        errors.validSubject = false;
-    }
-
-    if(!message){
-        errors.validMessage = false;
-    }
-    
-    // If any errors, redirect to the contact page but supply the errors and email/subject/message paramaters as 
-    // query parameters. This prevents the user from having to re-enter information when being redirected to the contact page,
-    // and allows for appropriate error messages to be displayed to the user
-    if(Object.keys(errors).length > 0){
-        let formData = {
-            contactEmail,
-            subject,
-            message
-        }
-
-        let queryObjects = {...errors, ...formData};
-        let errorQuery = querystring.stringify(queryObjects);
-        let uri = '/contact?' + errorQuery;
-        res.redirect(uri);
-        return;
-    }
-
-    // At this point, all fields should be valid
-    // send email
-    await email.sendEmail(subject, message, contactEmail);
-
-    res.render('emailSuccessful');
-});
+app.post('/contactform', homeController.postContactForm);
 
 // Start server
 app.listen(PORT,() => {
