@@ -89,19 +89,17 @@ const patchProject = async (req, res) => {
         res.redirect('/');
         return;
     }
+    console.log("Post body: \r" + JSON.stringify(req.body));
 
     let updatedProject = {
         id: req.body.id,
         projectName: req.body.projectName,
         projectDescription: req.body.projectDescription,
         linkToProjectImage: req.body.linkToProjectImage,
-        features: req.body.features,
+        features: req.body.feature,
         linkToProject: req.body.linkToProject
-    }
-    
-    console.log("Updated Project Info:" + JSON.stringify(updatedProject));
-
-    console.log("PATCH Project ID: " + updatedProject.id);
+    }    
+   
     let response = await fetch(`http://localhost:${PORT}/api/v1/projects/${updatedProject.id}`, {
         method: "PATCH",
         headers: {'content-type': 'application/json'},
@@ -109,11 +107,10 @@ const patchProject = async (req, res) => {
     });
 
     let body = await response.json()
-    let projectFromResponse = body.data;    
-    
-    console.log(projectFromResponse);
+    let projectFromResponse = body.data; 
 
     let data = {
+        isLoggedIn: req.session.isLoggedIn ?? false,
         title: projectFromResponse.projectName,
         year: new Date().getFullYear(),
         project: projectFromResponse
@@ -147,6 +144,7 @@ const deleteProject = async (req, res) => {
     const body = await response.json();
 
     let data = {
+        isLoggedIn: req.session.isLoggedIn ?? false,
         year: new Date().getFullYear()
     }
 
@@ -195,6 +193,7 @@ const createProject = async (req, res) => {
     }
 
     let data = {
+        isLoggedIn: req.session.isLoggedIn ?? false,
         title: newProject.projectName,
         year: new Date().getFullYear()
     }
@@ -224,7 +223,7 @@ const createProject = async (req, res) => {
 };
 
 const postLogin = async (req, res) => {
-    let data = {
+    let data = {        
         title: "Login",
         year: new Date().getFullYear()
     }
@@ -257,6 +256,7 @@ const postLogin = async (req, res) => {
         res.redirect('/');
     } else {        
         req.session.isLoggedIn = false,
+        data.isLoggedIn = req.session.isLoggedIn ?? false;
         data.errors = errors;
         res.render('login', data);
     }
