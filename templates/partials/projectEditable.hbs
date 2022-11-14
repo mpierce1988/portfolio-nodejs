@@ -9,12 +9,46 @@
     <input type="text" name="linkToProjectImage" id="linkToProjectImage" value="{{linkToProjectImage}}">
     <br>
     <label>Features:</label>
-    {{#if features}}
-    {{#each features}}
-    <input type="text" name="feature[{{@index}}]" id="feature[{{@index}}]" value="{{this}}">
-    {{/each}}
-    {{/if}}
+    <div id="features">
+        {{#if features}}
+            {{#each features}}
+                <input type="text" name="feature[]" value="{{this}}">
+            {{/each}}
+        {{/if}}        
+    </div>
+    <div class="grid">
+         <button type="button" id="addFeature">Add Feature</button>   
+         <button type="button" id="removeFeature">Remove Feature</button>
+    </div>
     <br>
     <label for="linkToProject">Link to Project:</label>
     <input type="text" name="linkToProject" id="linkToProject" value="{{linkToProject}}">
     <br>
+    <script>
+        const featureInputs = document.getElementsByName("feature[]");
+        const featureContainer = document.getElementById("features");
+        const addFeatureBtn = document.getElementById("addFeature");
+        const removeFeatureBtn = document.getElementById("removeFeature");
+
+        addFeatureBtn.addEventListener('click', () => {
+            // create new text input
+            let textInput = document.createElement('input');
+            textInput.setAttribute("type", "text");
+            textInput.setAttribute("name", "feature[]",);
+
+            // attach to features container div
+            featureContainer.appendChild(textInput);
+        });
+
+        removeFeatureBtn.addEventListener('click', () => {
+            // find all text inputs
+            let inputs = document.getElementsByName("feature[]");
+            console.log("Inputs: " + inputs);
+            console.log(inputs[inputs.length - 1]);
+            // get last element
+            let lastTextInput = inputs[inputs.length - 1];
+
+            // remove last element
+            lastTextInput.remove();
+        });
+    </script>
