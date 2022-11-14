@@ -4,15 +4,11 @@
 
 <table>
     <tr>
-        <th>Project Name</th>        
-        <th></th>
-        <th></th>
+        <th>Project Name</th> 
     </tr>
     {{#each projects}}
     <tr>
-        <td>{{this.projectName}}</td>
-        <td><a href="/admin/projects/{{this.id}}">Edit</a></td>
-        <td>Delete</td>
+        <td><a href="/admin/projects/{{this.id}}">{{this.projectName}}</a></td>
     </tr>
     {{/each}}
 </table>
