@@ -7,7 +7,7 @@
     {{#if error}}
         <h3>{{error}}</h3>
     {{/if}}
-    <input type="hidden" name="_method" value="patch">
+    
     {{>projectEditable project}}
     <button id="save">Save Changes</button>
     <button id="delete" formaction="/admin/projects/deleteproject">Delete Project</button>
