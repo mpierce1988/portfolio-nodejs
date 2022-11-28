@@ -1,6 +1,7 @@
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const loginController = require('../controllers/loginController');
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'http://localhost:5000';
 
 const getLoginPage = (req, res) => {
     let data = {
@@ -20,7 +21,7 @@ const getAdminPage = async (req, res) => {
 
     // display project information
     // call api and get projects
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects`);
+    let response = await fetch(`${HOST}/api/v1/projects`);
     let dataFromResponse = await response.json();
     let projects = dataFromResponse.data;
 
@@ -57,7 +58,7 @@ const getEditProject = async (req, res) => {
 
     let id = req.params.projectId;
 
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/${id}`);
+    let response = await fetch(`${HOST}/api/v1/projects/${id}`);
     
     let dataFromResponse = await response.json();
 
@@ -100,7 +101,7 @@ const patchProject = async (req, res) => {
         linkToProject: req.body.linkToProject
     }    
    
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/${updatedProject.id}`, {
+    let response = await fetch(`${HOST}/api/v1/projects/${updatedProject.id}`, {
         method: "PATCH",
         headers: {'content-type': 'application/json'},
         body: JSON.stringify(updatedProject)
@@ -135,7 +136,7 @@ const deleteProject = async (req, res) => {
 
     const projectId = req.body.id;
 
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/${projectId}`, {
+    let response = await fetch(`${HOST}/api/v1/projects/${projectId}`, {
         method: "DELETE",
         headers: {'content-type': 'application/json'},
         body: JSON.stringify({id: projectId})
@@ -198,7 +199,7 @@ const createProject = async (req, res) => {
         year: new Date().getFullYear()
     }
 
-    let response = await fetch(`http://localhost:${PORT}/api/v1/projects/`, {
+    let response = await fetch(`${HOST}/api/v1/projects/`, {
         method: "POST",
         headers: {'content-type': 'application/json'},
         body: JSON.stringify(newProject)
