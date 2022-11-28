@@ -1,0 +1,14 @@
+<h2>Projects Overview</h2>
+
+<a href="/admin/project" role="button">Create New Project</a>
+
+<table>
+    <tr>
+        <th>Project Name</th> 
+    </tr>
+    {{#each projects}}
+    <tr>
+        <td><a href="/admin/projects/{{this.id}}">{{this.projectName}}</a></td>
+    </tr>
+    {{/each}}
+</table>
