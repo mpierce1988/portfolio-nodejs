@@ -1,0 +1,12 @@
+<form action="/admin/project/" method="post">
+    {{#if message}}
+        <h3>{{message}}</h3>
+    {{/if}}
+
+    {{#if error}}
+        <h3>{{error}}</h3>
+    {{/if}}
+    
+    {{>projectEditable project}}
+    <button id="save">Create Project</button>
+</form>

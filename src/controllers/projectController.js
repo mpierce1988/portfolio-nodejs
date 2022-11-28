@@ -80,7 +80,7 @@ const deleteProject = async (req, res) => {
 
         res.status(200).send({status: "OK", data: deletedProject});
     } catch (error) {
-        res.status(error?.status || 500).send({status: "OK", message: error?.message || error});
+        res.status(error?.status || 500).send({status: "FAILED", data: {error: error?.message || error}});
     }
 }
 
